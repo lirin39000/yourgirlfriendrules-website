@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yourgirlfriendrules!!! Official Site</title>
+<!-- 引入 Tailwind CSS CDN -->
+<script src="https://www.google.com/search?q=https://cdn.tailwindcss.com"></script>
+<!-- 引入 React 和 ReactDOM CDN -->
+<!-- 修复：将 development.js 更改为 production.min.js 以确保 ReactDOM.createRoot 可用 -->
+<script src="https://www.google.com/search?q=https://unpkg.com/react%4018/umd/react.production.min.js"></script>
+<script src="https://www.google.com/search?q=https://unpkg.com/react-dom%4018/umd/react-dom.production.min.js"></script>
+<!-- 引入 Babel 用于在浏览器中转译 JSX -->
+<script src="https://www.google.com/search?q=https://unpkg.com/%40babel/standalone/babel.min.js"></script>
+
+<style>
+    /* 引入所需的涂鸦手写体字体 */
+    @import url('https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap');
+    
+    .font-coming-soon {
+        font-family: 'Coming Soon', cursive;
+    }
+
+    .stroke-text-light {
+        /* 模拟笔画描边效果 */
+        -webkit-text-stroke: 1px #888;
+        color: transparent;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+        animation: marquee 20s linear infinite;
+    }
+    
+    /* 自定义滚动条样式 */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #fcfcfc;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #b81232;
+        border: 1px solid #222222;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #1e40af;
+    }
+    
+    /* 确保根元素占据整个视口 */
+    #root {
+        min-height: 100vh;
+    }
+</style>
+
+
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    // 在单文件环境中，直接使用 React 和 ReactDOM 的全局变量
+    const { useState, useEffect, useRef } = React;
+    const ReactDOM = window.ReactDOM;
+
+    // --- Assets & Data ---
+
+    const TRACKS = [
+      { title: "GIRLFRIEND RULES!!!", length: "03:12" },
+      { title: "No More Sorry", length: "02:45" },
+      { title: "Pizza & Noise", length: "04:20" },
+      { title: "Garage Queen", length: "01:58" }
+    ];
+
+    // !!! 成员图片插入点: 请确保这里的 URL 都是公开可访问的外部链接 !!!
+    const MEMBERS = [
+      { name: "Carley", instrument: "Vocal", bio: "乐队里唯一需要学高数的女子，痴迷于拉娜德雷。", url: "https://live.staticflickr.com/65535/54967407327_36edd7a19a_m.jpg" },
+      { name: "Moz", instrument: "Guitar", bio: "随身携带浣熊尾巴，因为约会遗憾错过乐队团建。", url: "https://live.staticflickr.com/65535/54968558784_268e2fe133_m.jpg" },
+      { name: "Yuko", instrument: "Guitar", bio: "一位知识渊博的人类，曾因通宵打游戏在排练时间陷入昏迷状态。", url: "https://live.staticflickr.com/65535/54968480003_41e6ac3ef6_m.jpg" },
+      { name: "Rin", instrument: "Bass", bio: "人生目标是成为乐器全能王，坚决抵制贝斯笑话。", url: "https://live.staticflickr.com/65535/54967407297_94082beb12_m.jpg" }
+    ];
+
+    // --- Sub-Components ---
+
+    // Handwritten Title Component (手写标题组件)
+    const HandwrittenTitle = ({ text, className = "", size = "text-5xl md:text-8xl" }) => {
+      return (
+        <div className={`relative inline-block cursor-default interactive ${className}`}>
+          {/* Primary Text: Dark Charcoal, Handwritten */}
+          <span className={`relative z-10 block ${size} font-coming-soon tracking-tighter text-[#222222]`}>
+            {text}
+          </span>
+          {/* Shadow/Spraypaint Layer: Muted Red, slightly offset and mixed */}
+          <span className={`absolute top-[4px] left-[5px] -z-10 block ${size} font-coming-soon tracking-tighter text-[#b81232] opacity-80 mix-blend-multiply transition-transform duration-100 group-hover:translate-x-1 group-hover:translate-y-1`}>
+            {text}
+          </span>
+        </div>
+      );
+    };
+
+    // 简洁的成员卡片组件 (Simple Member Card)
+    const MemberCard = ({ member }) => {
+        return (
+            <div 
+                // 使用标准 CSS 动画替代 framer-motion
+                className="p-6 bg-[#fcfcfc] border-4 border-[#222222] shadow-[6px_6px_0px_#b81232] interactive group transition-all duration-300 hover:shadow-[10px_10px_0px_#1e40af] hover:-translate-y-1"
+            >
+                {/* 图像区域 */}
+                <div className="w-full aspect-square overflow-hidden mb-4 border-2 border-gray-300">
+                    <img 
+                        src={member.url}
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                        alt={`${member.name} - ${member.instrument}`}
+                        // 添加图片加载失败的备用方案
+                        onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/800x800/222222/fcfcfc?text=Member+Photo" }}
+                    />
+                </div>
+                
+                {/* 文本信息 */}
+                <h3 className="text-3xl font-coming-soon leading-tight text-[#222222] mb-1">{member.name.toUpperCase()}</h3>
+                <p className="font-mono text-sm uppercase text-[#b81232] mb-3">{member.instrument}</p>
+                
+                <p className="text-sm italic text-gray-700">{member.bio}</p>
+            </div>
+        );
+    };
+
+    // CustomCursor (自定义鼠标光标)
+    const CustomCursor = () => {
+      const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+      const [isHovering, setIsHovering] = useState(false);
+
+      useEffect(() => {
+        const mouseMove = (e) => {
+          setMousePosition({ x: e.clientX, y: e.clientY });
+        };
+        
+        const mouseOver = (e) => {
+          if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('.interactive')) {
+            setIsHovering(true);
+          } else {
+            setIsHovering(false);
+          }
+        };
+
+        window.addEventListener("mousemove", mouseMove);
+        window.addEventListener("mouseover", mouseOver);
+
+        return () => {
+          window.removeEventListener("mousemove", mouseMove);
+          window.removeEventListener("mouseover", mouseOver);
+        };
+      }, []);
+
+      // 使用标准 div 和 inline style + CSS transition 替代 framer-motion
+      return (
+        <div
+          className={`fixed top-0 left-0 pointer-events-none z-[9999] hidden md:flex items-center justify-center mix-blend-multiply transition-all duration-300 ease-out`}
+          style={{
+            transform: `translate(${mousePosition.x - (isHovering ? 32 : 8)}px, ${mousePosition.y - (isHovering ? 32 : 8)}px)`,
+            width: isHovering ? '64px' : '16px',
+            height: isHovering ? '64px' : '16px',
+          }}
+        >
+          <div className={`w-full h-full rounded-full border-2 ${isHovering ? 'border-[#b81232] bg-[#b81232]/20' : 'border-[#222222] bg-[#222222]'} transition-all duration-300`} />
+        </div>
+      );
+    };
+
+    // SVG Icons (替代 lucide-react)
+    const SkipBackIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" x2="5" y1="19" y2="5"></line></svg>
+    );
+    const SkipForwardIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" x2="19" y1="5" y2="19"></line></svg>
+    );
+    const PlayIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill={props.fill || "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+    );
+    const PauseIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill={props.fill || "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+    );
+    const InstagramIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.5" y1="6.5" y2="6.5"></line></svg>
+    );
+    const MailIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+    );
+    
+    const MusicPlayer = () => {
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [currentTrack, setCurrentTrack] = useState(0);
+
+      return (
+        <div 
+          // 音乐播放器，位于右下角
+          className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 bg-[#222222]/95 border-4 border-[#b81232] p-4 w-[90vw] md:w-80 shadow-[6px_6px_0px_0px_#1e40af] backdrop-blur-sm transition-transform duration-500"
+          style={{ transform: 'translateY(0)' /* 初始位置设置为可见 */ }}
+        >
+          <div className="flex justify-between items-center mb-2 border-b border-gray-600 pb-2">
+            <span className="text-[#1e40af] font-mono text-xs uppercase animate-pulse">Now Playing...</span>
+            <div className="flex gap-2">
+               <div className="w-2 h-2 bg-[#b81232] rounded-full animate-ping"></div>
+            </div>
+          </div>
+          
+          <div className="mb-4 overflow-hidden">
+             <div className="whitespace-nowrap animate-marquee">
+                <span className="text-[#fcfcfc] font-bold font-mono text-lg">{TRACKS[currentTrack].title}</span>
+             </div>
+             <div className="w-full bg-gray-700 h-1 mt-2 relative">
+                {/* 简化进度条动画 */}
+                <div 
+                    className="absolute left-0 top-0 h-full bg-[#b81232]"
+                    style={{ width: isPlaying ? "100%" : "30%", transition: 'width 100s linear' }}
+                />
+             </div>
+             <div className="flex justify-between text-[10px] text-gray-400 font-mono mt-1">
+                <span>00:42</span>
+                <span>{TRACKS[currentTrack].length}</span>
+             </div>
+          </div>
+
+          <div className="flex justify-center gap-6 items-center">
+            <button onClick={() => setCurrentTrack((prev) => (prev - 1 + TRACKS.length) % TRACKS.length)} className="text-[#fcfcfc] hover:text-[#1e40af] interactive transition-colors">
+              <SkipBackIcon />
+            </button>
+            <button 
+              onClick={() => setIsPlaying(!isPlaying)} 
+              className="w-12 h-12 flex items-center justify-center bg-[#b81232] text-[#222222] hover:bg-[#1e40af] interactive transition-colors shadow-[2px_2px_0px_0px_#fcfcfc]"
+            >
+              {isPlaying ? <PauseIcon fill="#222222" /> : <PlayIcon fill="#222222" />}
+            </button>
+            <button onClick={() => setCurrentTrack((prev) => (prev + 1) % TRACKS.length)} className="text-[#fcfcfc] hover:text-[#1e40af] interactive transition-colors">
+              <SkipForwardIcon />
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    // --- Main App ---
+
+    function App() {
+      return (
+        <div className="min-h-screen bg-[#fcfcfc] text-[#222222] overflow-x-hidden selection:bg-[#b81232] selection:text-[#fcfcfc] font-sans">
+          <CustomCursor />
+          
+          {/* Paper/Grain Texture Overlay (纸张/颗粒纹理覆盖) */}
+          <div className="fixed inset-0 opacity-[0.2] pointer-events-none z-0" style={{ 
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+              mixBlendMode: 'multiply'
+          }}></div>
+
+          {/* Navigation (导航栏) */}
+          <nav className="sticky top-0 w-full p-6 flex justify-between items-center z-40 bg-[#fcfcfc] border-b border-gray-300">
+            <div className="font-bold tracking-widest text-sm md:text-base border border-[#222222] px-2 py-1 uppercase interactive">Est. 2024</div>
+            <div className="flex gap-4">
+                <a href="#" className="interactive hover:text-[#b81232] transition-colors"><InstagramIcon size={24} /></a>
+                <a href="#" className="interactive hover:text-[#b81232] transition-colors"><MailIcon size={24} /></a>
+            </div>
+          </nav>
+
+          {/* HERO SECTION (主视觉区域) */}
+          <section className="relative min-h-[90vh] flex flex-col items-center justify-center pt-10 pb-10">
+            
+            {/* Band Name - Using HandwrittenTitle (乐队名称) */}
+            <div className="z-10 text-center flex flex-wrap justify-center mb-12 relative interactive group">
+              <HandwrittenTitle text="YOURGIRLFRIEND" size="text-6xl md:text-9xl" /> 
+              <HandwrittenTitle text="RULES!!!" className="text-[#1e40af]" size="text-6xl md:text-9xl" /> 
+            </div>
+
+            {/* Main Image Container (主图容器) */}
+            <div 
+                className="relative z-20 w-full max-w-4xl px-4 border-8 border-[#222222] shadow-[10px_10px_0px_#b81232] transition-transform duration-800"
+            >
+                {/* 图像容器 */}
+                <div className="w-full relative aspect-[16/9] overflow-hidden">
+                    {/* !!! 主页图片插入点: 将 'https://live.staticflickr.com/...' 替换为您的公开图片 URL !!! */}
+                    <img 
+                        src="https://live.staticflickr.com/65535/54968539895_67fe41fc74_m.jpg" 
+                        alt="yourgirlfriendrules!!! Band Photo" 
+                        className="w-full h-full object-cover saturate-150 contrast-125"
+                    />
+                </div>
+                {/* 图像下方的标签/说明 */}
+                <div className="absolute -bottom-6 right-4 font-mono text-xs text-[#222222] bg-[#fcfcfc] px-3 py-1 rotate-[2deg] border border-[#222222] shadow-[2px_2px_0px_#1e40af] interactive">
+                    FIRST EVER PHOTO - EST. 2024
+                </div>
+            </div>
+          </section>
+
+          {/* BAND INTRODUCTION (乐队介绍) */}
+          <section className="py-20 px-4 md:px-20 bg-[#222222] text-[#fcfcfc] border-y-8 border-[#1e40af] overflow-hidden">
+             <div className="max-w-4xl mx-auto">
+                <h2 className="text-5xl font-coming-soon text-[#b81232] mb-8 interactive">The Band's Story</h2>
+                
+                <p className="text-lg md:text-xl leading-relaxed border-l-4 border-[#fcfcfc] pl-4 mb-8">
+                    一支来自无锡艰难大学的全女乐队，主要是英摇cover。有一把黑色吉他一把红色吉他一把蓝色贝斯一位美丽主唱，和一位看上30个学时的鼓手学姐。乐队起源于一群滚妹网友。内部含有些许女同性恋无性恋双性恋。活动频率极低，目前只排练了4次，主要活动于线上讲骚话。
+                </p>
+                <p className="text-sm text-gray-400 font-mono">
+                    [ READ MORE: The full interview with NME Magazine ]
+                </p>
+             </div>
+          </section>
+
+          {/* MEMBER INTRODUCTION (成员介绍) */}
+          <section className="py-20 px-4 md:px-20 bg-gray-100">
+            <h2 className="text-5xl font-coming-soon text-[#1e40af] mb-12 text-center md:text-left interactive">Meet The Chaos</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
+                {MEMBERS.map((member, index) => (
+                    // 使用 MemberCard 组件
+                    <MemberCard key={index} member={member} />
+                ))}
+            </div>
+          </section>
+          
+          {/* COVERS VIDEO SECTION (视频演示区) */}
+          <section className="py-20 px-4 md:px-20 bg-[#1e40af] text-[#fcfcfc]">
+              <h2 className="text-5xl font-coming-soon text-[#fcfcfc] mb-12 text-center interactive">Studio 5 Demos</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-6xl mx-auto">
+                  
+                  {/* 示例 1: COVER 01 - 夏日漱石 */}
+                  <div className="p-4 bg-[#fcfcfc] text-[#222222] border-4 border-[#222222] shadow-[8px_8px_0px_#b81232]">
+                     <p className="font-mono text-sm uppercase mb-3 border-b-2 border-gray-300 pb-2">COVER 01: 夏日漱石</p>
+                     <div className="w-full aspect-video">
+                        {/* 视频 1 插入点: YouTube ID - RHEfqvW-2fo */}
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/RHEfqvW-2fo" 
+                            title="YouTube video player - 夏日漱石" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerPolicy="strict-origin-when-cross-origin" 
+                            allowFullScreen
+                        ></iframe>
+                     </div>
+                  </div>
+                  
+                  {/* 示例 2: COVER 02 - Dreams */}
+                  <div className="p-4 bg-[#fcfcfc] text-[#222222] border-4 border-[#222222] shadow-[8px_8px_0px_#b81232]">
+                      <p className="font-mono text-sm uppercase mb-3 border-b-2 border-gray-300 pb-2">COVER 02: Dreams</p>
+                      
+                      <div className="w-full aspect-video">
+                         {/* 视频 2 插入点: YouTube ID - B130d_WzcfM */}
+                         <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/B130d_WzcfM" 
+                            title="YouTube video player - Dreams" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerPolicy="strict-origin-when-cross-origin" 
+                            allowFullScreen
+                         ></iframe>
+                         
+                      </div>
+                  </div>
+              </div>
+              <p className="text-center mt-16 text-sm italic text-gray-300">
+                "These are the sounds that built us. Raw and unfiltered."
+              </p>
+          </section>
+
+
+          {/* FOOTER (页脚) */}
+          <footer className="bg-[#222222] text-[#fcfcfc] py-16 relative overflow-hidden">
+            <div className="container mx-auto px-4 text-center">
+                <h1 className="text-[10vw] leading-none font-coming-soon text-transparent stroke-text-light opacity-10 select-none pointer-events-none">
+                    YGR!!!
+                </h1>
+                <div className="mt-8 flex flex-col md:flex-row justify-center gap-8 items-center font-mono text-sm">
+                    <a href="#" className="hover:text-[#b81232] hover:underline underline-offset-4 decoration-2">SPOTIFY</a>
+                    <a href="#" className="hover:text-[#b81232] hover:underline underline-offset-4 decoration-2">APPLE MUSIC</a>
+                    <a href="#" className="hover:text-[#b81232] hover:underline underline-offset-4 decoration-2">BANDCAMP</a>
+                    <a href="#" className="hover:text-[#b81232] hover:underline underline-offset-4 decoration-2">TIKTOK</a>
+                </div>
+                <p className="mt-12 text-gray-600 text-xs">© 2024 YOURGIRLFRIENDRULES!!! ALL RIGHTS RESERVED.</p>
+            </div>
+          </footer>
+
+          <MusicPlayer />
+          
+        </div>
+      );
+    }
+    
+    // 使用 ReactDOM.createRoot 渲染 App 组件
+    const container = document.getElementById('root');
+    const root = ReactDOM.createRoot(container);
+    root.render(<App />);
+</script>
+
+
+</body>
+</html>
